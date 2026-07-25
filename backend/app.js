@@ -5,6 +5,7 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 require("./config/db"); // Import the database connection
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Test Route
 app.get("/", (req, res) => {
@@ -21,5 +23,8 @@ app.get("/", (req, res) => {
         message: "BBSR Smart Grocery Delivery API Running 🚀"
     });
 });
+
+// Authentication Routes
+app.use("/api/auth", authRoutes);
 
 module.exports = app;

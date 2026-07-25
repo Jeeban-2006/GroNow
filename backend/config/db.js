@@ -4,16 +4,21 @@ require("dotenv").config();
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000
 });
 
 pool.connect()
-    .then(() => {
+    .then(client => {
         console.log("✅ PostgreSQL Connected");
+        client.release();
     })
-    .catch((err) => {
+    .catch(err => {
         console.error("❌ Database Connection Failed");
         console.error(err.message);
     });
