@@ -66,23 +66,23 @@ class AuthService {
 
             await pool.query(
                 `INSERT INTO customers(user_id)
-                 VALUES($1)`,
+                VALUES($1)`,
                 [user.user_id]
             );
 
         }
 
-        else if (role === "OWNER") {
+        else if (role === "STORE_OWNER"){
 
             await pool.query(
                 `INSERT INTO store_owners(user_id)
-                 VALUES($1)`,
+                VALUES($1)`,
                 [user.user_id]
             );
 
         }
 
-        else if (role === "DELIVERY") {
+        else if (role === "DELIVERY_PARTNER"){
 
             await pool.query(
 
@@ -110,54 +110,38 @@ class AuthService {
     }
 
     // ==========================
-    // LOGIN
-    // ==========================
+// LOGIN
+// ==========================
 
-    async login(email, password) {
+async login(email, password) {
 
-        const result = await pool.query(
+    const result = await pool.query(
+        `SELECT * FROM users WHERE email = $1`,
+        [email]
+    );
 
-            "SELECT * FROM users WHERE email=$1",
-
-            [email]
-
-        );
-
-        if (result.rows.length === 0) {
-
-            throw new Error("Invalid Email");
-
-        }
-
-        const user = result.rows[0];
-        delete user.password;
-
-        const isMatch = await comparePassword(
-
-            password,
-
-            user.password
-
-        );
-
-        if (!isMatch) {
-
-            throw new Error("Invalid Password");
-
-        }
-
-        const token = generateToken(user);
-
-        return {
-
-            token,
-
-            user
-
-        };
-
+    if (result.rows.length === 0) {
+        throw new Error("Invalid Email or Password");
     }
 
+    const user = result.rows[0];
+
+    const isMatch = await comparePassword(password, user.password);
+
+    if (!isMatch) {
+        throw new Error("Invalid Email or Password");
+    }
+
+    const token = generateToken(user);
+
+    delete user.password;
+
+    return {
+        token,
+        user
+    };
 }
+        }
+
 
 module.exports = new AuthService();

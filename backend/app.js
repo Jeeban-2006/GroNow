@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const authMiddleware = require("./middleware/authMiddleware");
+const roleMiddleware = require("./middleware/roleMiddleware");
+
 require("dotenv").config();
 
 require("./config/db"); // Import the database connection
@@ -23,6 +26,59 @@ app.get("/", (req, res) => {
         message: "BBSR Smart Grocery Delivery API Running 🚀"
     });
 });
+
+app.get("/api/profile", authMiddleware, (req, res) => {
+
+    res.status(200).json({
+
+        success: true,
+
+        message: "Protected Route Accessed Successfully",
+
+        user: req.user
+
+    });
+
+});
+
+app.get(
+    "/api/customer",
+    authMiddleware,
+    roleMiddleware("CUSTOMER"),
+    (req, res) => {
+
+        res.json({
+            message: "Welcome Customer"
+        });
+
+    }
+);
+
+app.get(
+    "/api/owner",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    (req, res) => {
+
+        res.json({
+            message: "Welcome Store Owner"
+        });
+
+    }
+);
+
+app.get(
+    "/api/delivery",
+    authMiddleware,
+    roleMiddleware("DELIVERY_PARTNER"),
+    (req, res) => {
+
+        res.json({
+            message: "Welcome Delivery Partner"
+        });
+
+    }
+);
 
 // Authentication Routes
 app.use("/api/auth", authRoutes);

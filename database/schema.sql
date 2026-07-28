@@ -44,7 +44,7 @@ CREATE TABLE users (
 
     role VARCHAR(20) NOT NULL
         CHECK(role IN
-        ('ADMIN','CUSTOMER','OWNER','DELIVERY')),
+        ('ADMIN','CUSTOMER','STORE_OWNER','DELIVERY')),
 
     profile_image TEXT,
 
