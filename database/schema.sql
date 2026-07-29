@@ -186,12 +186,11 @@ ON delivery_partners(current_latitude, current_longitude);
 
 -- STORES TABLE
 CREATE TABLE stores (
-
     store_id SERIAL PRIMARY KEY,
 
-    owner_id INT NOT NULL,
+    owner_id INT NOT NULL UNIQUE,
 
-    store_name VARCHAR(150) NOT NULL,
+    shop_name VARCHAR(100) NOT NULL,
 
     description TEXT,
 
@@ -201,47 +200,35 @@ CREATE TABLE stores (
 
     state VARCHAR(100) NOT NULL,
 
-    pincode VARCHAR(10) NOT NULL,
+    pincode VARCHAR(6) NOT NULL,
 
-    latitude DECIMAL(10,8) NOT NULL,
+    latitude DECIMAL(10,8),
 
-    longitude DECIMAL(11,8) NOT NULL,
+    longitude DECIMAL(11,8),
 
-    contact_number VARCHAR(15) NOT NULL,
+    opening_time TIME,
 
-    email VARCHAR(255),
+    closing_time TIME,
 
-    opening_time TIME NOT NULL,
+    contact_number VARCHAR(10) NOT NULL,
 
-    closing_time TIME NOT NULL,
-
-    delivery_radius NUMERIC(5,2) DEFAULT 10.00,
-
-    minimum_order_amount NUMERIC(10,2) DEFAULT 0.00,
-
-    store_image TEXT,
-
-    rating NUMERIC(2,1) DEFAULT 5.0
-        CHECK (rating >= 0 AND rating <= 5),
-
-    is_open BOOLEAN DEFAULT TRUE,
+    is_verified BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_store_owner
-        FOREIGN KEY(owner_id)
+        FOREIGN KEY (owner_id)
         REFERENCES store_owners(owner_id)
         ON DELETE CASCADE
 );
-
 -- STORE INDEXES
 CREATE INDEX idx_store_city
 ON stores(city);
 
 CREATE INDEX idx_store_name
-ON stores(store_name);
+ON stores(shop_name);
 
 CREATE INDEX idx_store_owner
 ON stores(owner_id);
