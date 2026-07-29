@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const authMiddleware = require("./middleware/authMiddleware");
 const roleMiddleware = require("./middleware/roleMiddleware");
+const storeRoutes = require("./routes/storeRoutes");
 
 require("dotenv").config();
 
@@ -18,6 +19,10 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+//Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/stores", storeRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
@@ -80,7 +85,6 @@ app.get(
     }
 );
 
-// Authentication Routes
-app.use("/api/auth", authRoutes);
+
 
 module.exports = app;
