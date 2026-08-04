@@ -133,6 +133,7 @@ export default function CustomerPortal() {
   const [profileData, setProfileData] = useState<any>({});
   const [showProfile, setShowProfile] = useState(false);
   const [profileTab, setProfileTab] = useState<"PROFILE" | "HISTORY">("PROFILE");
+  const [expandedHistoryOrder, setExpandedHistoryOrder] = useState<number | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -974,17 +975,42 @@ export default function CustomerPortal() {
                    <div className="space-y-4">
                      {orders.filter(o => ['DELIVERED', 'CANCELLED'].includes(o.order_status)).length > 0 ? (
                        orders.filter(o => ['DELIVERED', 'CANCELLED'].includes(o.order_status)).map(order => (
-                         <div key={order.order_id} className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
+                         <div key={order.order_id} className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 cursor-pointer select-none" onClick={() => setExpandedHistoryOrder(expandedHistoryOrder === order.order_id ? null : order.order_id)}>
                            <div className="flex justify-between items-start mb-2">
                              <div>
-                               <p className="font-bold text-sm text-gray-900">{order.order_number}</p>
+                               <p className="font-bold text-sm text-gray-900 flex items-center gap-2">
+                                 {order.order_number}
+                                 <span className="text-gray-400 text-xs">{expandedHistoryOrder === order.order_id ? '▲' : '▼'}</span>
+                               </p>
                                <p className="text-xs text-gray-500">{new Date(order.ordered_at).toLocaleDateString()} at {new Date(order.ordered_at).toLocaleTimeString()}</p>
                              </div>
                              <span className={`px-2 py-1 rounded text-[10px] font-bold ${order.order_status === 'DELIVERED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                {order.order_status}
                              </span>
                            </div>
-                           <p className="text-sm font-semibold text-gray-900 mt-3">₹{parseFloat(order.total_amount).toFixed(2)}</p>
+
+                           <AnimatePresence>
+                             {expandedHistoryOrder === order.order_id && order.items && (
+                               <motion.div 
+                                 initial={{ opacity: 0, height: 0 }}
+                                 animate={{ opacity: 1, height: 'auto' }}
+                                 exit={{ opacity: 0, height: 0 }}
+                                 className="my-3 bg-white p-3 rounded-lg border border-gray-100 overflow-hidden"
+                               >
+                                 <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Items</p>
+                                 <ul className="space-y-1.5">
+                                   {order.items.map((item: any, idx: number) => (
+                                     <li key={idx} className="flex justify-between text-sm">
+                                       <span className="text-gray-600 truncate mr-2"><span className="font-semibold text-gray-900">{item.quantity}x</span> {item.product_name}</span>
+                                       <span className="text-gray-800 font-semibold whitespace-nowrap">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                     </li>
+                                   ))}
+                                 </ul>
+                               </motion.div>
+                             )}
+                           </AnimatePresence>
+
+                           <p className="text-sm font-semibold text-gray-900 mt-3 border-t border-gray-200 pt-2 text-right">Total: ₹{parseFloat(order.total_amount).toFixed(2)}</p>
                          </div>
                        ))
                      ) : (

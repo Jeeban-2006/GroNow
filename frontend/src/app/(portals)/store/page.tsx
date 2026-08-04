@@ -11,6 +11,7 @@ export default function StorePortal() {
   const [activeOrders, setActiveOrders] = useState<any[]>([]);
   const [pastOrders, setPastOrders] = useState<any[]>([]);
   const [ordersTab, setOrdersTab] = useState<'ACTIVE' | 'PAST'>('ACTIVE');
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasStore, setHasStore] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -469,18 +470,42 @@ export default function StorePortal() {
                       exit={{ opacity: 0, height: 0 }}
                       className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm"
                     >
-                       <div className="flex justify-between items-center mb-3">
+                       <div className="flex justify-between items-center mb-3 cursor-pointer select-none" onClick={() => setExpandedOrder(expandedOrder === order.order_id ? null : order.order_id)}>
                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                            order.order_status === 'PLACED' ? 'bg-blue-50 text-blue-700' :
                            order.order_status === 'CONFIRMED' ? 'bg-yellow-50 text-yellow-700' :
                            order.order_status === 'PACKING' ? 'bg-orange-50 text-orange-700' :
                            'bg-green-50 text-green-700'
                          }`}>{order.order_status}</span>
-                         <span className="text-xs text-gray-400">{new Date(order.ordered_at).toLocaleTimeString()}</span>
+                         <span className="text-xs text-gray-400 flex items-center gap-2">
+                           {new Date(order.ordered_at).toLocaleTimeString()}
+                           <span className="text-base leading-none text-gray-300">{expandedOrder === order.order_id ? '▲' : '▼'}</span>
+                         </span>
                        </div>
                        <p className="font-bold text-gray-900 mb-0.5">{order.order_number}</p>
                        <p className="text-xs text-gray-500 mb-4">{order.first_name} {order.last_name} • {order.city}</p>
                        
+                       <AnimatePresence>
+                         {expandedOrder === order.order_id && order.items && (
+                           <motion.div 
+                             initial={{ opacity: 0, height: 0 }}
+                             animate={{ opacity: 1, height: 'auto' }}
+                             exit={{ opacity: 0, height: 0 }}
+                             className="mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100 overflow-hidden"
+                           >
+                             <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Order Items</p>
+                             <ul className="space-y-1.5">
+                               {order.items.map((item: any, idx: number) => (
+                                 <li key={idx} className="flex justify-between text-sm">
+                                   <span className="text-gray-600 truncate mr-2"><span className="font-semibold text-gray-900">{item.quantity}x</span> {item.product_name}</span>
+                                   <span className="text-gray-800 font-semibold whitespace-nowrap">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                 </li>
+                               ))}
+                             </ul>
+                           </motion.div>
+                         )}
+                       </AnimatePresence>
+
                        <div className="flex gap-2">
                          <div className="flex-none border border-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl text-sm">
                            ₹{order.total_amount}
@@ -538,16 +563,41 @@ export default function StorePortal() {
                 pastOrders.length > 0 ? (
                   pastOrders.map(order => (
                     <div key={order.order_id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm opacity-80 hover:opacity-100 transition-opacity">
-                      <div className="flex justify-between items-center mb-3">
+                      <div className="flex justify-between items-center mb-3 cursor-pointer select-none" onClick={() => setExpandedOrder(expandedOrder === order.order_id ? null : order.order_id)}>
                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                            order.order_status === 'DELIVERED' ? 'bg-purple-50 text-purple-700' : 'bg-red-50 text-red-700'
                          }`}>{order.order_status}</span>
-                         <span className="text-xs text-gray-400">{new Date(order.ordered_at).toLocaleDateString()}</span>
+                         <span className="text-xs text-gray-400 flex items-center gap-2">
+                           {new Date(order.ordered_at).toLocaleDateString()}
+                           <span className="text-base leading-none text-gray-300">{expandedOrder === order.order_id ? '▲' : '▼'}</span>
+                         </span>
                        </div>
                        <p className="font-bold text-gray-900 mb-0.5">{order.order_number}</p>
                        <p className="text-xs text-gray-500 mb-4">{order.first_name} {order.last_name} • {order.city}</p>
+                       
+                       <AnimatePresence>
+                         {expandedOrder === order.order_id && order.items && (
+                           <motion.div 
+                             initial={{ opacity: 0, height: 0 }}
+                             animate={{ opacity: 1, height: 'auto' }}
+                             exit={{ opacity: 0, height: 0 }}
+                             className="mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100 overflow-hidden"
+                           >
+                             <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Order Items</p>
+                             <ul className="space-y-1.5">
+                               {order.items.map((item: any, idx: number) => (
+                                 <li key={idx} className="flex justify-between text-sm">
+                                   <span className="text-gray-600 truncate mr-2"><span className="font-semibold text-gray-900">{item.quantity}x</span> {item.product_name}</span>
+                                   <span className="text-gray-800 font-semibold whitespace-nowrap">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                 </li>
+                               ))}
+                             </ul>
+                           </motion.div>
+                         )}
+                       </AnimatePresence>
+
                        <div className="text-gray-700 font-bold text-sm">
-                           ₹{order.total_amount}
+                           Total: ₹{order.total_amount}
                        </div>
                     </div>
                   ))

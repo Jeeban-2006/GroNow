@@ -122,14 +122,22 @@ class StoreController {
             const store_id = storeRes.rows[0].store_id;
 
             const ordersRes = await pool.query(`
-                SELECT DISTINCT o.order_id, o.order_number, o.total_amount, o.order_status, o.ordered_at,
-                       c.address, c.city, u.first_name, u.last_name
+                SELECT o.order_id, o.order_number, o.total_amount, o.order_status, o.ordered_at,
+                       c.address, c.city, u.first_name, u.last_name,
+                       json_agg(
+                           json_build_object(
+                               'product_name', p.product_name,
+                               'quantity', oi.quantity,
+                               'price', oi.price
+                           )
+                       ) as items
                 FROM orders o
                 JOIN customers c ON o.customer_id = c.customer_id
                 JOIN users u ON c.user_id = u.user_id
                 JOIN order_items oi ON o.order_id = oi.order_id
                 JOIN products p ON oi.product_id = p.product_id
                 WHERE p.store_id = $1 AND o.order_status NOT IN ('DELIVERED', 'CANCELLED')
+                GROUP BY o.order_id, c.address, c.city, u.first_name, u.last_name
                 ORDER BY o.ordered_at DESC
             `, [store_id]);
 
@@ -150,14 +158,22 @@ class StoreController {
             const store_id = storeRes.rows[0].store_id;
 
             const ordersRes = await pool.query(`
-                SELECT DISTINCT o.order_id, o.order_number, o.total_amount, o.order_status, o.ordered_at,
-                       c.address, c.city, u.first_name, u.last_name
+                SELECT o.order_id, o.order_number, o.total_amount, o.order_status, o.ordered_at,
+                       c.address, c.city, u.first_name, u.last_name,
+                       json_agg(
+                           json_build_object(
+                               'product_name', p.product_name,
+                               'quantity', oi.quantity,
+                               'price', oi.price
+                           )
+                       ) as items
                 FROM orders o
                 JOIN customers c ON o.customer_id = c.customer_id
                 JOIN users u ON c.user_id = u.user_id
                 JOIN order_items oi ON o.order_id = oi.order_id
                 JOIN products p ON oi.product_id = p.product_id
                 WHERE p.store_id = $1 AND o.order_status IN ('DELIVERED', 'CANCELLED')
+                GROUP BY o.order_id, c.address, c.city, u.first_name, u.last_name
                 ORDER BY o.ordered_at DESC
                 LIMIT 50
             `, [store_id]);
