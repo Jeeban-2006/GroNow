@@ -246,14 +246,15 @@ export default function CustomerPortal() {
     }
   };
 
-  const updateProfile = async () => {
+  const updateProfile = async (dataToUpdate?: any) => {
+    const data = dataToUpdate || profileData;
     try {
       await apiClient("/api/profile", {
         method: "PUT",
         requireAuth: true,
-        body: JSON.stringify(profileData)
+        body: JSON.stringify(data)
       });
-      setUser({ ...user, ...profileData });
+      setUser({ ...user, ...data });
       setEditMode(false);
       alert("Profile updated successfully!");
     } catch (err: any) {
@@ -605,7 +606,18 @@ export default function CustomerPortal() {
                     {checkoutStep === "LOCATION" && (
                       <div className="flex gap-2">
                         <button onClick={() => setCheckoutStep("CART")} className="w-1/3 bg-gray-100 text-gray-700 font-bold text-lg py-4 rounded-xl hover:bg-gray-200 transition-colors">Back</button>
-                        <button onClick={() => setCheckoutStep("PAYMENT")} className="w-2/3 bg-green-600 text-white font-bold text-lg py-4 rounded-xl shadow-md hover:bg-green-700 transition-colors">Select Payment</button>
+                        <button 
+                          onClick={() => {
+                            if (!profileData.address || !profileData.pincode) {
+                              alert("Please fill in your address details");
+                              return;
+                            }
+                            const updatedProfile = { ...profileData, state: profileData.state || "Odisha" };
+                            setProfileData(updatedProfile);
+                            updateProfile(updatedProfile).then(() => setCheckoutStep("PAYMENT"));
+                          }}
+                          className="w-2/3 bg-green-600 text-white font-bold text-lg py-4 rounded-xl shadow-md hover:bg-green-700 transition-colors"
+                        >Select Payment</button>
                       </div>
                     )}
                     {checkoutStep === "PAYMENT" && (
