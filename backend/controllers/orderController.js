@@ -46,12 +46,15 @@ class OrderController {
                 totalAmount += (item.price * item.quantity);
             });
 
-            // We no longer hardcode a single store_id for the order. It is now null.
+            // We get the store_id from the first item in the cart to satisfy the NOT NULL constraint
+            const firstItemProdRes = await pool.query("SELECT store_id FROM products WHERE product_id = $1", [items[0].productId]);
+            const store_id = firstItemProdRes.rows.length > 0 ? firstItemProdRes.rows[0].store_id : 1; // fallback to 1
+
             const order_number = `ORD-${Date.now()}`;
             const orderRes = await pool.query(
                 `INSERT INTO orders (order_number, customer_id, store_id, subtotal, total_amount, order_status, delivery_address)
-                 VALUES ($1, $2, NULL, $3, $4, 'PLACED', 'Default Delivery Address') RETURNING *`,
-                [order_number, customer_id, totalAmount, totalAmount]
+                 VALUES ($1, $2, $3, $4, $5, 'PLACED', 'Default Delivery Address') RETURNING *`,
+                [order_number, customer_id, store_id, totalAmount, totalAmount]
             );
             const order_id = orderRes.rows[0].order_id;
 
