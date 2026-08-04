@@ -247,7 +247,9 @@ export default function CustomerPortal() {
   };
 
   const updateProfile = async (dataToUpdate?: any) => {
-    const data = dataToUpdate || profileData;
+    // If dataToUpdate is a React event, ignore it
+    const isEvent = dataToUpdate && dataToUpdate.nativeEvent;
+    const data = (dataToUpdate && !isEvent) ? dataToUpdate : profileData;
     try {
       await apiClient("/api/profile", {
         method: "PUT",
