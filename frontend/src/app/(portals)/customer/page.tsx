@@ -220,7 +220,7 @@ export default function CustomerPortal() {
   const placeOrder = async () => {
     if (cart.length === 0) return;
     
-    if (!user?.address || !user?.city || !user?.state || !user?.pincode) {
+    if (!user?.address || !user?.city || !user?.pincode) {
         alert("Please complete your delivery address in your profile before ordering.");
         setShowProfile(true);
         setEditMode(true);

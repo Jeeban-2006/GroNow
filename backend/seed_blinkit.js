@@ -7,11 +7,15 @@ const fs = require('fs');
 const path = require('path');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'bbsr_grocery',
-  user: 'postgres',
-  password: 'qwertyui'
+  ...(process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+    : {
+        host: 'localhost',
+        port: 5432,
+        database: 'bbsr_grocery',
+        user: 'postgres',
+        password: 'qwertyui'
+      })
 });
 
 async function parseCsv(filePath) {
