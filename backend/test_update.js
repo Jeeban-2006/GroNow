@@ -1,0 +1,1 @@
+const pool=require('./config/db');pool.query("UPDATE order_items SET product_id = 284 WHERE order_id = 19").then(r=>console.log("Updated", r.rowCount)).catch(console.error).finally(()=>process.exit(0))

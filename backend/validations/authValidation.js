@@ -1,9 +1,14 @@
 const Joi = require("joi");
 
 const registerSchema = Joi.object({
-    name: Joi.string()
-        .min(3)
-        .max(100)
+    first_name: Joi.string()
+        .min(2)
+        .max(50)
+        .required(),
+
+    last_name: Joi.string()
+        .min(2)
+        .max(50)
         .required(),
 
     email: Joi.string()
@@ -20,7 +25,7 @@ const registerSchema = Joi.object({
         .required(),
 
     role: Joi.string()
-        .valid("CUSTOMER", "STORE_OWNER", "DELIVERY_PARTNER")
+        .valid("CUSTOMER", "STORE_OWNER", "DELIVERY", "ADMIN")
         .required()
 });
 

@@ -20,4 +20,32 @@ router.post(
     storeController.createStore
 );
 
+router.get(
+    "/profile",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    storeController.getStoreProfile
+);
+
+router.put(
+    "/profile",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    storeController.updateStoreProfile
+);
+
+router.get(
+    "/orders",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    storeController.getActiveOrders
+);
+
+router.put(
+    "/orders/:id/status",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    storeController.updateOrderStatus
+);
+
 module.exports = router;

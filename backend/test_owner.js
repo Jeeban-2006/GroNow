@@ -1,0 +1,1 @@
+const pool=require('./config/db');pool.query("SELECT u.email, u.first_name, u.role FROM stores s JOIN store_owners so ON s.owner_id = so.owner_id JOIN users u ON so.user_id = u.user_id WHERE s.store_id = 1").then(r=>console.log(r.rows)).catch(console.error).finally(()=>process.exit(0))

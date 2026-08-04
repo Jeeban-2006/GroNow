@@ -1,0 +1,1 @@
+const pool=require('./config/db');pool.query("SELECT p.store_id FROM order_items oi JOIN products p ON oi.product_id = p.product_id WHERE oi.order_id = 18").then(r=>console.log(r.rows)).catch(console.error).finally(()=>process.exit(0))

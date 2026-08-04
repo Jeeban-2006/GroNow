@@ -1,0 +1,22 @@
+require('dotenv').config();
+const pool = require('./config/db');
+
+async function test() {
+    try {
+        const res = await pool.query(`
+            SELECT DISTINCT o.order_id, o.order_number, o.order_status
+            FROM orders o
+            JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON c.user_id = u.user_id
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN products p ON oi.product_id = p.product_id
+            WHERE p.store_id = 1 AND o.order_status NOT IN ('DELIVERED', 'CANCELLED')
+        `);
+        console.log("Orders:", res.rows);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        process.exit(0);
+    }
+}
+test();

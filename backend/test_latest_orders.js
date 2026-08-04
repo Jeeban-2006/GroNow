@@ -1,0 +1,1 @@
+const pool=require('./config/db');pool.query("SELECT o.order_id, o.order_number, o.order_status, o.ordered_at, p.store_id, p.product_name, oi.quantity FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id ORDER BY o.ordered_at DESC LIMIT 5").then(r=>console.log(r.rows)).catch(console.error).finally(()=>process.exit(0))

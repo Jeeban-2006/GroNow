@@ -10,7 +10,8 @@ class AuthService {
     async register(userData) {
 
         const {
-            name,
+            first_name,
+            last_name,
             email,
             phone,
             password,
@@ -44,12 +45,13 @@ class AuthService {
         const userResult = await pool.query(
 
             `INSERT INTO users
-            (name,email,phone,password,role)
-            VALUES($1,$2,$3,$4,$5)
+            (first_name,last_name,email,phone,password,role)
+            VALUES($1,$2,$3,$4,$5,$6)
             RETURNING *`,
 
             [
-                name,
+                first_name,
+                last_name,
                 email,
                 phone,
                 hashedPassword,
@@ -63,36 +65,27 @@ class AuthService {
         // Insert into role table
 
         if (role === "CUSTOMER") {
-
             await pool.query(
-                `INSERT INTO customers(user_id)
-                VALUES($1)`,
+                `INSERT INTO customers(user_id, address, city, state, pincode)
+                VALUES($1, 'Please update address', 'Update City', 'Update State', '000000')`,
                 [user.user_id]
             );
-
         }
-
         else if (role === "STORE_OWNER"){
-
             await pool.query(
-                `INSERT INTO store_owners(user_id)
-                VALUES($1)`,
+                `INSERT INTO store_owners(user_id, business_name)
+                VALUES($1, 'My Store')`,
                 [user.user_id]
             );
-
         }
-
-        else if (role === "DELIVERY_PARTNER"){
-
+        else if (role === "DELIVERY"){
+            const randomSuffix = Math.floor(1000 + Math.random() * 9000);
             await pool.query(
-
                 `INSERT INTO delivery_partners
-                (user_id,availability)
-                VALUES($1,true)`,
-
-                [user.user_id]
+                (user_id, vehicle_type, vehicle_number, driving_license, availability_status)
+                VALUES($1, 'BIKE', $2, $3, 'AVAILABLE')`,
+                [user.user_id, `XX-00-${randomSuffix}`, `DL-${randomSuffix}`]
             );
-
         }
 
         // Generate Token

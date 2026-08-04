@@ -251,7 +251,7 @@ CREATE TABLE categories (
 
 -- CATEGORY INDEXES
 CREATE INDEX idx_category_name
-ON categories(category_name);next
+ON categories(category_name);
 
 -- PRODUCTS TABLE
 CREATE TABLE products (
@@ -953,3 +953,15 @@ ON delivery_tracking(partner_id);
 
 CREATE INDEX idx_tracking_time
 ON delivery_tracking(tracked_at);
+
+-- SYSTEM CONFIG TABLE
+CREATE TABLE system_config (
+    config_id SERIAL PRIMARY KEY,
+    config_key VARCHAR(50) UNIQUE NOT NULL,
+    config_value JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert initial pricing configuration
+INSERT INTO system_config (config_key, config_value) VALUES 
+('pricing', '{"base_delivery_fee": 15.00, "surge_multiplier": 1.0, "platform_commission_percent": 5.0}');
