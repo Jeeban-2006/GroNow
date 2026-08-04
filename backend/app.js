@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
 app.get("/api/profile", authMiddleware, async (req, res) => {
     try {
         const pool = require("./config/db");
-        const userRes = await pool.query("SELECT first_name, last_name, email, phone, role FROM users WHERE user_id = $1", [req.user.user_id]);
+        const userRes = await pool.query("SELECT first_name, last_name, email, phone as phone_number, role FROM users WHERE user_id = $1", [req.user.user_id]);
         if (userRes.rows.length === 0) return res.status(404).json({ success: false, message: "User not found" });
         
         let profile = userRes.rows[0];
