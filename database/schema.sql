@@ -670,6 +670,8 @@ CREATE TABLE routes (
     actual_time_minutes INT
         CHECK(actual_time_minutes >= 0),
 
+    waypoints JSONB,
+
     route_status VARCHAR(30)
         DEFAULT 'ASSIGNED'
         CHECK(route_status IN (
