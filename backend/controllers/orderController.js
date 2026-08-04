@@ -117,7 +117,7 @@ class OrderController {
                                json_build_object(
                                    'product_name', p.product_name,
                                    'quantity', oi.quantity,
-                                   'price', oi.price
+                                   'price', oi.unit_price
                                )
                            )
                            FROM order_items oi
