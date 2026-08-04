@@ -139,6 +139,35 @@ class StoreController {
         }
     }
 
+    // GET past orders for the store
+    async getPastOrders(req, res) {
+        try {
+            const pool = require("../config/db");
+            const user_id = req.user.user_id;
+
+            const storeRes = await pool.query("SELECT store_id FROM stores WHERE owner_id = (SELECT owner_id FROM store_owners WHERE user_id = $1)", [user_id]);
+            if (storeRes.rows.length === 0) return res.status(200).json([]);
+            const store_id = storeRes.rows[0].store_id;
+
+            const ordersRes = await pool.query(`
+                SELECT DISTINCT o.order_id, o.order_number, o.total_amount, o.order_status, o.ordered_at,
+                       c.address, c.city, u.first_name, u.last_name
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.customer_id
+                JOIN users u ON c.user_id = u.user_id
+                JOIN order_items oi ON o.order_id = oi.order_id
+                JOIN products p ON oi.product_id = p.product_id
+                WHERE p.store_id = $1 AND o.order_status IN ('DELIVERED', 'CANCELLED')
+                ORDER BY o.ordered_at DESC
+                LIMIT 50
+            `, [store_id]);
+
+            res.status(200).json(ordersRes.rows);
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
     // UPDATE order status
     async updateOrderStatus(req, res) {
         try {

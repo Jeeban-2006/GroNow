@@ -9,6 +9,8 @@ export default function StorePortal() {
   const [inventory, setInventory] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [activeOrders, setActiveOrders] = useState<any[]>([]);
+  const [pastOrders, setPastOrders] = useState<any[]>([]);
+  const [ordersTab, setOrdersTab] = useState<'ACTIVE' | 'PAST'>('ACTIVE');
   const [loading, setLoading] = useState(true);
   const [hasStore, setHasStore] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -38,6 +40,9 @@ export default function StorePortal() {
     try {
       const ordersData = await apiClient<any[]>("/api/stores/orders", { requireAuth: true }).catch(() => []);
       setActiveOrders(ordersData || []);
+
+      const pastOrdersData = await apiClient<any[]>("/api/stores/orders/history", { requireAuth: true }).catch(() => []);
+      setPastOrders(pastOrdersData || []);
       
       // Notify if new order arrived
       if (ordersData && ordersData.length > previousOrderCount.current && previousOrderCount.current > 0) {
@@ -429,87 +434,129 @@ export default function StorePortal() {
           </div>
         </div>        {/* Right Column: Active Dispatches */}
         <div className="space-y-4">
-          <div>
-            <h2 className="font-bold text-xl text-gray-900">Active Orders</h2>
-            <p className="text-sm text-gray-500">{activeOrders.length} pending</p>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="font-bold text-xl text-gray-900">Store Orders</h2>
+              <p className="text-sm text-gray-500">
+                {ordersTab === 'ACTIVE' ? `${activeOrders.length} pending` : `${pastOrders.length} past orders`}
+              </p>
+            </div>
+            <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
+              <button 
+                onClick={() => setOrdersTab('ACTIVE')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${ordersTab === 'ACTIVE' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                Active
+              </button>
+              <button 
+                onClick={() => setOrdersTab('PAST')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${ordersTab === 'PAST' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                History
+              </button>
+            </div>
           </div>
           
           <div className="space-y-3">
             <AnimatePresence>
-              {activeOrders.length > 0 ? (
-                activeOrders.map(order => (
-                  <motion.div 
-                    key={order.order_id} 
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm"
-                  >
-                     <div className="flex justify-between items-center mb-3">
-                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                         order.order_status === 'PLACED' ? 'bg-blue-50 text-blue-700' :
-                         order.order_status === 'CONFIRMED' ? 'bg-yellow-50 text-yellow-700' :
-                         order.order_status === 'PACKING' ? 'bg-orange-50 text-orange-700' :
-                         'bg-green-50 text-green-700'
-                       }`}>{order.order_status}</span>
-                       <span className="text-xs text-gray-400">{new Date(order.ordered_at).toLocaleTimeString()}</span>
-                     </div>
-                     <p className="font-bold text-gray-900 mb-0.5">{order.order_number}</p>
-                     <p className="text-xs text-gray-500 mb-4">{order.first_name} {order.last_name} • {order.city}</p>
-                     
-                     <div className="flex gap-2">
-                       <div className="flex-none border border-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl text-sm">
-                         ₹{order.total_amount}
+              {ordersTab === 'ACTIVE' ? (
+                activeOrders.length > 0 ? (
+                  activeOrders.map(order => (
+                    <motion.div 
+                      key={order.order_id} 
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm"
+                    >
+                       <div className="flex justify-between items-center mb-3">
+                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                           order.order_status === 'PLACED' ? 'bg-blue-50 text-blue-700' :
+                           order.order_status === 'CONFIRMED' ? 'bg-yellow-50 text-yellow-700' :
+                           order.order_status === 'PACKING' ? 'bg-orange-50 text-orange-700' :
+                           'bg-green-50 text-green-700'
+                         }`}>{order.order_status}</span>
+                         <span className="text-xs text-gray-400">{new Date(order.ordered_at).toLocaleTimeString()}</span>
                        </div>
+                       <p className="font-bold text-gray-900 mb-0.5">{order.order_number}</p>
+                       <p className="text-xs text-gray-500 mb-4">{order.first_name} {order.last_name} • {order.city}</p>
                        
-                       {order.order_status === 'PLACED' && (
-                         <motion.button 
-                           whileTap={{ scale: 0.97 }}
-                           onClick={() => updateOrderStatus(order.order_id, 'CONFIRMED')}
-                           className="flex-1 bg-green-600 text-white font-bold py-2 rounded-xl hover:bg-green-700 transition-colors text-sm"
-                         >
-                           Accept Order
-                         </motion.button>
-                       )}
-                       
-                       {order.order_status === 'CONFIRMED' && (
-                         <motion.button 
-                           whileTap={{ scale: 0.97 }}
-                           onClick={() => updateOrderStatus(order.order_id, 'PACKING')}
-                           className="flex-1 bg-yellow-500 text-white font-bold py-2 rounded-xl hover:bg-yellow-600 transition-colors text-sm"
-                         >
-                           Start Packing
-                         </motion.button>
-                       )}
-                       
-                       {order.order_status === 'PACKING' && (
-                         <motion.button 
-                           whileTap={{ scale: 0.97 }}
-                           onClick={() => updateOrderStatus(order.order_id, 'OUT_FOR_DELIVERY')}
-                           className="flex-1 bg-blue-600 text-white font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors text-sm"
-                         >
-                           Hand to Driver
-                         </motion.button>
-                       )}
-    
-                       {order.order_status === 'OUT_FOR_DELIVERY' && (
-                         <motion.button 
-                           whileTap={{ scale: 0.97 }}
-                           onClick={() => updateOrderStatus(order.order_id, 'DELIVERED')}
-                           className="flex-1 bg-purple-600 text-white font-bold py-2 rounded-xl hover:bg-purple-700 transition-colors text-sm"
-                         >
-                           Mark Delivered
-                         </motion.button>
-                       )}
-                     </div>
-                  </motion.div>
-                ))
+                       <div className="flex gap-2">
+                         <div className="flex-none border border-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl text-sm">
+                           ₹{order.total_amount}
+                         </div>
+                         
+                         {order.order_status === 'PLACED' && (
+                           <motion.button 
+                             whileTap={{ scale: 0.97 }}
+                             onClick={() => updateOrderStatus(order.order_id, 'CONFIRMED')}
+                             className="flex-1 bg-green-600 text-white font-bold py-2 rounded-xl hover:bg-green-700 transition-colors text-sm"
+                           >
+                             Accept Order
+                           </motion.button>
+                         )}
+                         
+                         {order.order_status === 'CONFIRMED' && (
+                           <motion.button 
+                             whileTap={{ scale: 0.97 }}
+                             onClick={() => updateOrderStatus(order.order_id, 'PACKING')}
+                             className="flex-1 bg-yellow-500 text-white font-bold py-2 rounded-xl hover:bg-yellow-600 transition-colors text-sm"
+                           >
+                             Start Packing
+                           </motion.button>
+                         )}
+                         
+                         {order.order_status === 'PACKING' && (
+                           <motion.button 
+                             whileTap={{ scale: 0.97 }}
+                             onClick={() => updateOrderStatus(order.order_id, 'OUT_FOR_DELIVERY')}
+                             className="flex-1 bg-blue-600 text-white font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors text-sm"
+                           >
+                             Hand to Driver
+                           </motion.button>
+                         )}
+      
+                         {order.order_status === 'OUT_FOR_DELIVERY' && (
+                           <motion.button 
+                             whileTap={{ scale: 0.97 }}
+                             onClick={() => updateOrderStatus(order.order_id, 'DELIVERED')}
+                             className="flex-1 bg-purple-600 text-white font-bold py-2 rounded-xl hover:bg-purple-700 transition-colors text-sm"
+                           >
+                             Mark Delivered
+                           </motion.button>
+                         )}
+                       </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-gray-400 bg-gray-50 rounded-2xl border border-gray-100">
+                    <span className="text-3xl block mb-2">😴</span>
+                    <p className="font-medium">No active orders</p>
+                  </div>
+                )
               ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-                  <p className="text-4xl mb-3">📋</p>
-                  <p className="font-semibold text-gray-700 text-sm">No active orders</p>
-                  <p className="text-xs text-gray-400 mt-1">Awaiting customer orders...</p>
-                </div>
+                pastOrders.length > 0 ? (
+                  pastOrders.map(order => (
+                    <div key={order.order_id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm opacity-80 hover:opacity-100 transition-opacity">
+                      <div className="flex justify-between items-center mb-3">
+                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                           order.order_status === 'DELIVERED' ? 'bg-purple-50 text-purple-700' : 'bg-red-50 text-red-700'
+                         }`}>{order.order_status}</span>
+                         <span className="text-xs text-gray-400">{new Date(order.ordered_at).toLocaleDateString()}</span>
+                       </div>
+                       <p className="font-bold text-gray-900 mb-0.5">{order.order_number}</p>
+                       <p className="text-xs text-gray-500 mb-4">{order.first_name} {order.last_name} • {order.city}</p>
+                       <div className="text-gray-700 font-bold text-sm">
+                           ₹{order.total_amount}
+                       </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-gray-400 bg-gray-50 rounded-2xl border border-gray-100">
+                    <span className="text-3xl block mb-2">📜</span>
+                    <p className="font-medium">No past orders</p>
+                  </div>
+                )
               )}
             </AnimatePresence>
           </div>

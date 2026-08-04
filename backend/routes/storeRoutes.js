@@ -41,6 +41,13 @@ router.get(
     storeController.getActiveOrders
 );
 
+router.get(
+    "/orders/history",
+    authMiddleware,
+    roleMiddleware("STORE_OWNER"),
+    storeController.getPastOrders
+);
+
 router.put(
     "/orders/:id/status",
     authMiddleware,
