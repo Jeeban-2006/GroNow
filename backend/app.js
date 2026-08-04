@@ -77,7 +77,7 @@ app.put("/api/profile", authMiddleware, async (req, res) => {
         const role = req.user.role;
         const { first_name, last_name, phone_number, address, city, state, pincode, vehicle_type, vehicle_number, driving_license, aadhaar_number } = req.body;
 
-        await pool.query("UPDATE users SET first_name=$1, last_name=$2, phone=$3 WHERE user_id=$4", [first_name, last_name, phone_number || '', user_id]);
+        await pool.query("UPDATE users SET first_name=$1, last_name=$2, phone=$3 WHERE user_id=$4", [first_name, last_name, phone_number || null, user_id]);
         
         if (role === 'CUSTOMER') {
             // Upsert customer profile

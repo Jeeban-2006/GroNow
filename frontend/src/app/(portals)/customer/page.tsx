@@ -149,11 +149,18 @@ export default function CustomerPortal() {
     } catch (err) {}
   };
 
-  const getETA = (status: string) => {
+  const getETA = (status: string, orderedAt?: string) => {
     if (status === 'PLACED') return "Confirming order...";
     if (status === 'CONFIRMED') return "Accepting packing...";
     if (status === 'PACKING') return "Driver assigned, heading to store...";
-    if (status === 'OUT_FOR_DELIVERY') return "Arriving in approx. 12 mins";
+    if (status === 'OUT_FOR_DELIVERY') {
+      if (orderedAt) {
+        const elapsedMinutes = Math.floor((new Date().getTime() - new Date(orderedAt).getTime()) / 60000);
+        const remaining = Math.max(1, 15 - elapsedMinutes);
+        return `Arriving in approx. ${remaining} min${remaining > 1 ? 's' : ''}`;
+      }
+      return "Arriving in approx. 12 mins";
+    }
     return "";
   };
 
@@ -330,7 +337,7 @@ export default function CustomerPortal() {
                         <div className="p-4 border-b border-gray-50 bg-blue-50/30 hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => { setShowNotifications(false); setSidebarTab("PAYLOAD"); setIsSidebarOpen(true); }}>
                           <p className="text-xs font-bold text-blue-600 mb-1">Live Order Update</p>
                           <p className="text-sm font-semibold text-gray-900">Order {activeOrder.order_number}</p>
-                          <p className="text-xs text-gray-600 mt-0.5">{getETA(activeOrder.order_status)}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">{getETA(activeOrder.order_status, activeOrder.ordered_at)}</p>
                         </div>
                       )}
                       <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer">
@@ -639,7 +646,7 @@ export default function CustomerPortal() {
                         <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
                           {activeOrder.order_status}
                         </span>
-                        <p className="text-sm font-bold text-green-600 animate-pulse">{getETA(activeOrder.order_status)}</p>
+                        <p className="text-sm font-bold text-green-600 animate-pulse">{getETA(activeOrder.order_status, activeOrder.ordered_at)}</p>
                       </div>
                       
                       {/* Map Section */}

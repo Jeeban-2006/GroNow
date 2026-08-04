@@ -493,12 +493,13 @@ export default function StorePortal() {
                        )}
     
                        {order.order_status === 'OUT_FOR_DELIVERY' && (
-                         <button 
-                           disabled
-                           className="flex-1 bg-gray-100 text-gray-400 font-bold py-2 rounded-xl text-sm cursor-not-allowed"
+                         <motion.button 
+                           whileTap={{ scale: 0.97 }}
+                           onClick={() => updateOrderStatus(order.order_id, 'DELIVERED')}
+                           className="flex-1 bg-purple-600 text-white font-bold py-2 rounded-xl hover:bg-purple-700 transition-colors text-sm"
                          >
-                           En Route...
-                         </button>
+                           Mark Delivered
+                         </motion.button>
                        )}
                      </div>
                   </motion.div>
