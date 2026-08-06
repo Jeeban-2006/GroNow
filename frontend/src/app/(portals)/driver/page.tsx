@@ -18,6 +18,7 @@ export default function DriverPortal() {
   const [user, setUser] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [deliveryOtp, setDeliveryOtp] = useState<string>('');
   const [profileData, setProfileData] = useState<any>({});
   const trackerRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
@@ -67,9 +68,10 @@ export default function DriverPortal() {
       await apiClient("/api/delivery/status", {
         method: "PUT",
         requireAuth: true,
-        body: JSON.stringify({ order_id: activeRoute.order_id, status })
+        body: JSON.stringify({ order_id: activeRoute.order_id, status, otp: status === 'DELIVERED' ? deliveryOtp : undefined })
       });
       fetchAssignments();
+      if (status === 'DELIVERED') setDeliveryOtp('');
     } catch (err: any) {
       alert("Failed to update status: " + err.message);
     }
@@ -250,10 +252,35 @@ export default function DriverPortal() {
                 onClick={async () => {
                   try {
                     const newStatus = isOnline ? 'OFFLINE' : 'AVAILABLE';
+                    
+                    let lat = null;
+                    let lng = null;
+
+                    if (newStatus === 'AVAILABLE' && "geolocation" in navigator) {
+                      // Get location before going online
+                      try {
+                        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                          navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                          });
+                        });
+                        lat = position.coords.latitude;
+                        lng = position.coords.longitude;
+                      } catch (e) {
+                        console.warn("Could not get exact location, proceeding without it.", e);
+                      }
+                    }
+
                     await apiClient("/api/delivery/availability", {
                       method: "PUT",
                       requireAuth: true,
-                      body: JSON.stringify({ availability_status: newStatus })
+                      body: JSON.stringify({ 
+                        availability_status: newStatus,
+                        latitude: lat,
+                        longitude: lng
+                      })
                     });
                     setIsOnline(!isOnline);
                   } catch (err: any) {
@@ -352,9 +379,24 @@ export default function DriverPortal() {
                   </button>
                 )}
                 {activeRoute.route_status === 'ON_THE_WAY' && (
-                  <button onClick={() => updateStatus('DELIVERED')} className="w-full py-4 rounded-xl font-bold text-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-lg">
-                    Mark Delivered
-                  </button>
+                  <div className="space-y-3">
+                    <p className="text-sm font-bold text-gray-700 text-center">Verify Delivery PIN</p>
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit PIN"
+                      value={deliveryOtp}
+                      onChange={(e) => setDeliveryOtp(e.target.value)}
+                      className="w-full bg-gray-100 border border-gray-200 text-center tracking-[0.5em] font-black text-2xl py-4 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
+                      maxLength={6}
+                    />
+                    <button 
+                      onClick={() => updateStatus('DELIVERED')} 
+                      disabled={deliveryOtp.length !== 6}
+                      className="w-full py-4 rounded-xl font-bold text-lg bg-green-600 disabled:bg-gray-300 disabled:text-gray-500 text-white hover:bg-green-700 transition-colors shadow-lg shadow-green-600/30"
+                    >
+                      Confirm OTP & Deliver
+                    </button>
+                  </div>
                 )}
               </div>
 

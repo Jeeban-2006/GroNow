@@ -43,7 +43,7 @@ class ProductController {
             const newProduct = await pool.query(`
                 INSERT INTO products (store_id, category_id, product_name, description, unit, price, sku, expiry_date)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
-            `, [store_id, category_id, product_name, description, unit, price, sku, expiry_date || null]);
+            `, [store_id, category_id, product_name, description, unit, price, sku || null, expiry_date || null]);
 
             // Auto-insert inventory
             await pool.query("INSERT INTO inventory (product_id, available_quantity) VALUES ($1, 0)", [newProduct.rows[0].product_id]);

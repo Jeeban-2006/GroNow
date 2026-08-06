@@ -64,6 +64,18 @@ export default function AdminPortal() {
     }
   };
 
+  const rejectStore = async (store_id: number) => {
+    try {
+      await apiClient(`/api/admin/stores/${store_id}/reject`, {
+        method: "PUT",
+        requireAuth: true
+      });
+      fetchData(); // refresh data
+    } catch (err: any) {
+      alert("Failed to reject store: " + err.message);
+    }
+  };
+
   const toggleNodeStatus = async (user_id: number) => {
     try {
       await apiClient(`/api/admin/nodes/${user_id}/status`, {
@@ -271,7 +283,7 @@ export default function AdminPortal() {
                           <p className="font-mono text-xs text-gray-600 mb-4">{store.city} • GST: {store.gst_number}</p>
                           <div className="flex gap-2">
                             <button onClick={() => verifyStore(store.store_id)} className="flex-1 bg-white text-black font-display text-sm font-bold py-1 hover:bg-gronow-turmeric transition-colors">VERIFY</button>
-                            <button className="flex-1 border border-[#333330] text-gray-600 font-display text-sm py-1 hover:text-gray-900 transition-colors">REJECT</button>
+                            <button onClick={() => rejectStore(store.store_id)} className="flex-1 border border-[#333330] text-gray-600 font-display text-sm py-1 hover:text-gray-900 transition-colors">REJECT</button>
                           </div>
                         </motion.div>
                       ))}
@@ -302,7 +314,7 @@ export default function AdminPortal() {
                       <tr><td colSpan={6} className="py-6 text-center text-gray-600">No active drivers in the grid.</td></tr>
                     ) : (
                       fleet.map(d => (
-                        <tr key={d.partner_id} className="border-b border-[#333330] hover:bg-[#1A1A18]">
+                        <tr key={d.partner_id} className="border-b border-[#333330] hover:bg-gray-50 transition-colors">
                           <td className="py-4 text-yellow-600">DRV_{d.partner_id}</td>
                           <td className="py-4 text-gray-900">
                             <div>{d.first_name} {d.last_name}</div>
@@ -364,7 +376,7 @@ export default function AdminPortal() {
                       <tr><td colSpan={7} className="py-6 text-center text-gray-600">No transactions recorded.</td></tr>
                     ) : (
                       orders.map(o => (
-                        <tr key={o.order_id} className="border-b border-[#333330] hover:bg-[#1A1A18]">
+                        <tr key={o.order_id} className="border-b border-[#333330] hover:bg-gray-50 transition-colors">
                           <td className="py-4 text-gray-900 font-bold">{o.order_number}</td>
                           <td className="py-4 text-gray-600 text-xs">{new Date(o.created_at).toLocaleString()}</td>
                           <td className="py-4 text-gray-600">
@@ -411,14 +423,14 @@ export default function AdminPortal() {
                       <tr><td colSpan={6} className="py-6 text-center text-gray-600">No nodes found in the network.</td></tr>
                     ) : (
                       nodes.map(n => (
-                        <tr key={`${n.type}_${n.id}`} className={`border-b border-[#333330] hover:bg-[#1A1A18] ${!n.is_active ? 'opacity-50' : ''}`}>
+                        <tr key={`${n.type}_${n.id}`} className={`border-b border-[#333330] hover:bg-gray-50 transition-colors ${!n.is_active ? 'opacity-50' : ''}`}>
                           <td className="py-4 text-gray-900 font-bold">{n.type === 'STORE' ? 'STR_' : 'DRV_'}{n.id}</td>
                           <td className="py-4">
                             <span className={`px-2 py-1 text-[10px] uppercase border ${
                               n.type === 'STORE' ? 'border-blue-500 text-blue-500' : 'border-gronow-turmeric text-yellow-600'
                             }`}>{n.type}</span>
                           </td>
-                          <td className="py-4 text-gray-300">{n.name}</td>
+                          <td className="py-4 text-gray-900">{n.name}</td>
                           <td className="py-4 text-gray-600">{n.location}</td>
                           <td className="py-4">
                             <span className={`px-2 py-1 text-xs border ${

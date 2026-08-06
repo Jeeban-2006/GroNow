@@ -7,6 +7,7 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 router.get("/metrics", authMiddleware, roleMiddleware("ADMIN"), adminController.getMetrics);
 router.get("/stores/pending", authMiddleware, roleMiddleware("ADMIN"), adminController.getPendingStores);
 router.put("/stores/:id/verify", authMiddleware, roleMiddleware("ADMIN"), adminController.verifyStore);
+router.put("/stores/:id/reject", authMiddleware, roleMiddleware("ADMIN"), adminController.rejectStore);
 router.get("/fleet", authMiddleware, roleMiddleware("ADMIN"), adminController.getFleet);
 router.get("/orders", authMiddleware, roleMiddleware("ADMIN"), adminController.getOrders);
 router.get("/nodes", authMiddleware, roleMiddleware("ADMIN"), adminController.getNodes);

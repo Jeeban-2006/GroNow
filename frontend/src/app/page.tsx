@@ -78,7 +78,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["logic", "network"];
+      const sections = ["faq"];
       let current = "";
       for (const section of sections) {
         const el = document.getElementById(section);
@@ -100,8 +100,8 @@ export default function LandingPage() {
           GRONOW<span className="text-green-600">.</span>
         </div>
         <div className="hidden md:flex space-x-8 font-mono text-xs tracking-widest uppercase">
-          <Link href="#logic" className={`transition-colors ${activeSection === "logic" ? "text-green-600 font-bold" : "hover:text-green-600"}`}>Algorithm</Link>
-          <Link href="#network" className={`transition-colors ${activeSection === "network" ? "text-green-600 font-bold" : "hover:text-green-600"}`}>Network</Link>
+          <Link href="/about" className="hover:text-green-600 transition-colors">About</Link>
+          <Link href="#faq" className={`transition-colors ${activeSection === "faq" ? "text-green-600 font-bold" : "hover:text-green-600"}`}>FAQ</Link>
           <Link href="/auth?role=STORE_OWNER" className="hover:text-green-600 transition-colors">Partner Login</Link>
         </div>
         <Link href="/auth?role=CUSTOMER" className="font-display font-bold text-sm bg-green-600 text-white px-6 py-2 hover:bg-white hover:text-green-600 transition-colors border border-transparent hover:border-green-600">
@@ -114,11 +114,7 @@ export default function LandingPage() {
         <ScrollingBags />
         <RoutingLine />
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <div className="animate-fade-in-up">
             <div className="font-mono text-green-600 mb-6 text-sm flex items-center gap-4 font-bold">
               <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
               LIVE IN BHUBANESWAR (PATIA, KIIT ROAD, CHANDRASEKHARPUR)
@@ -140,120 +136,140 @@ export default function LandingPage() {
                 <span>ACTIVE NODES: 42 STORES</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* The Logic Section */}
-      <motion.section id="logic" className="py-32 px-6 md:px-12 border-b border-gray-200" initial={{opacity:0, y:50}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.8}}>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-16">
-            <div>
-              <h2 className="font-display font-bold text-5xl tracking-tight mb-8">THE ALGORITHM.</h2>
-              <p className="font-body text-gray-600 text-lg mb-8 leading-relaxed">
-                GroNow isn't just a delivery app; it's a decentralized logistics protocol for the city. When you place an order, our engine evaluates store proximity, live inventory, and driver availability in milliseconds.
-              </p>
-              <div className="space-y-6 font-mono text-sm">
-                <div className="border-l-2 border-gronow-turmeric pl-4 py-1">
-                  <div className="text-gray-900 font-bold mb-1">01. COMPILE</div>
-                  <div className="text-gray-600">Cart items mapped against 50+ local vendor APIs.</div>
-                </div>
-                <div className="border-l-2 border-gray-200 pl-4 py-1">
-                  <div className="text-gray-900 font-bold mb-1">02. ROUTE</div>
-                  <div className="text-gray-600">PostGIS radius scan (max 5km) identifies optimal node.</div>
-                </div>
-                <div className="border-l-2 border-gray-200 pl-4 py-1">
-                  <div className="text-gray-900 font-bold mb-1">03. DISPATCH</div>
-                  <div className="text-gray-600">Nearest rider pinged via WebSockets.</div>
+      {/* Promotional Advertisements Section */}
+      <motion.section className="py-24 px-6 md:px-12 bg-white" initial={{opacity:0, y:50}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.8}}>
+        <div className="max-w-7xl mx-auto flex flex-col gap-12">
+          {/* Promo 1 */}
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl h-80 md:h-[400px] w-full group cursor-pointer">
+            <img src="/images/promo_banner_mango.jpg" alt="Mango Mania" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center p-8 md:p-16">
+              <div className="max-w-lg text-white">
+                <h3 className="font-display font-bold text-4xl md:text-6xl mb-4 text-gronow-turmeric">MANGO MANIA!</h3>
+                <p className="text-lg md:text-xl font-medium mb-8">Treat yourself to the freshest Alphonso mangoes, delivered in 15 minutes. Pure summer bliss.</p>
+                <Link href="/auth?role=CUSTOMER" className="inline-block bg-gronow-turmeric text-black font-bold py-3 px-8 rounded-full hover:bg-yellow-400 transition-colors">SHOP NOW</Link>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Promo 2 */}
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl h-80 w-full group cursor-pointer">
+              <img src="/images/promo_banner_midnight.jpg" alt="Midnight Cravings" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8">
+                <div className="text-white">
+                  <h3 className="font-display font-bold text-3xl mb-2 text-blue-400">MIDNIGHT CRAVINGS?</h3>
+                  <p className="font-medium mb-4">We've got your late-night snacks covered. Open 24/7.</p>
+                  <Link href="/auth?role=CUSTOMER" className="inline-block bg-white text-black font-bold py-2 px-6 rounded-full hover:bg-gray-200 transition-colors">ORDER SNACKS</Link>
                 </div>
               </div>
             </div>
-            
-            <div className="bg-gray-100 p-8 border border-gray-200 font-mono text-xs text-green-700 overflow-hidden relative rounded-2xl shadow-sm">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gronow-turmeric to-transparent opacity-50"></div>
-              <p className="mb-2">{`> INITIALIZING SPATIAL QUERY...`}</p>
-              <p className="mb-2 opacity-70">{`> SELECT id, name FROM stores WHERE ST_DWithin(location, POINT(85.8245 20.2960), 5000);`}</p>
-              <p className="mb-2">{`> 3 NODES FOUND.`}</p>
-              <p className="mb-2 opacity-70">{`> EVALUATING INVENTORY GRAPH...`}</p>
-              <p className="mb-2">{`> MATCH IDENTIFIED: STORE_ID_092 (1.2KM)`}</p>
-              <p className="mb-2 text-green-600">{`> DISPATCHING RIDER_ID_404...`}</p>
-              <p className="mt-8 animate-pulse text-gray-900">{`_`}</p>
+
+            {/* Promo 3 */}
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl h-80 w-full group cursor-pointer">
+              <img src="/images/promo_banner_icecream.jpg" alt="Ice Cream Store" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8">
+                <div className="text-white">
+                  <h3 className="font-display font-bold text-3xl mb-2 text-pink-400">ICE CREAM STORE</h3>
+                  <p className="font-medium mb-4">Beat the heat with our premium ice cream selection.</p>
+                  <Link href="/auth?role=CUSTOMER" className="inline-block bg-pink-500 text-white font-bold py-2 px-6 rounded-full hover:bg-pink-600 transition-colors">EXPLORE</Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Network / Partners Section */}
-      <motion.section id="network" className="py-32 px-6 md:px-12 bg-green-600 text-white" initial={{opacity:0, y:50}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.8}}>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <h2 className="font-display font-bold text-5xl md:text-7xl tracking-tight max-w-2xl">
-              PLUG YOUR STORE INTO THE GRID.
-            </h2>
-            <Link href="/auth?role=STORE_OWNER" className="font-display font-bold text-sm bg-white text-green-600 px-8 py-4 hover:bg-black transition-colors shrink-0">
-              OPEN STORE PORTAL
-            </Link>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="border-t-2 border-green-500 pt-6">
-              <h3 className="font-display font-bold text-2xl mb-4">Zero Infrastructure</h3>
-              <p className="font-body text-green-50">We provide the dashboard, the drivers, and the customers. You provide the physical inventory. Become a dark store node overnight.</p>
-            </div>
-            <div className="border-t-2 border-green-500 pt-6">
-              <h3 className="font-display font-bold text-2xl mb-4">Instant Payouts</h3>
-              <p className="font-body text-green-50">Algorithms handle the split-routing; smart contracts handle the ledger. Get paid daily for fulfilled sub-orders.</p>
-            </div>
-            <div className="border-t-2 border-green-500 pt-6">
-              <h3 className="font-display font-bold text-2xl mb-4">Hyper-Local Reach</h3>
-              <p className="font-body text-green-50">Stop relying on foot traffic. Expose your fresh produce to thousands of users within a 5km radius instantly.</p>
-            </div>
+
+
+      {/* FAQ Section */}
+      <motion.section id="faq" className="py-24 px-6 md:px-12 bg-white" initial={{opacity:0, y:50}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.8}}>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display font-bold text-4xl mb-12 text-center text-gray-900">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            <details className="group bg-gray-50 p-6 rounded-2xl cursor-pointer [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between font-bold text-lg text-gray-900 outline-none">
+                How do you deliver in 15 minutes?
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <p className="text-gray-600 mt-4 leading-relaxed">We operate a decentralized network of dark stores and partner with local vendors across the city. When you order, our algorithm routes it to the absolute closest node, and our dedicated riders bring it straight to you without multi-stops.</p>
+            </details>
+            <details className="group bg-gray-50 p-6 rounded-2xl cursor-pointer [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between font-bold text-lg text-gray-900 outline-none">
+                What areas do you currently serve?
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <p className="text-gray-600 mt-4 leading-relaxed">We are currently live in Bhubaneswar, specifically serving Patia, KIIT Road, and Chandrasekharpur zones. We are expanding rapidly!</p>
+            </details>
+            <details className="group bg-gray-50 p-6 rounded-2xl cursor-pointer [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between font-bold text-lg text-gray-900 outline-none">
+                Can I partner my store with GroNow?
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <p className="text-gray-600 mt-4 leading-relaxed">Yes! You can plug your store into our grid. Just click on "Store Partner" at the bottom of the page, fill out the application, and if verified, you can start receiving digital orders instantly.</p>
+            </details>
+            <details className="group bg-gray-50 p-6 rounded-2xl cursor-pointer [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between font-bold text-lg text-gray-900 outline-none">
+                Is there a delivery fee?
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <p className="text-gray-600 mt-4 leading-relaxed">Orders above ₹199 enjoy free delivery! A nominal fee of ₹25 is applied for orders below that amount to support our rider network.</p>
+            </details>
           </div>
         </div>
       </motion.section>
 
-      {/* Driver / Fleet Section */}
-      <motion.section className="py-32 px-6 md:px-12 border-b border-gray-200" initial={{opacity:0, y:50}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.8}}>
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div className="order-2 md:order-1 border border-gray-200 p-8 bg-gray-50 rounded-2xl shadow-sm">
-            <div className="flex justify-between items-center mb-12 border-b border-gray-200 pb-4">
-              <span className="font-mono text-green-600 font-bold">DRIVER.TERMINAL</span>
-              <span className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></span>
+      {/* Professional Footer */}
+      <footer className="bg-gray-900 text-white pt-20 pb-10 px-6 md:px-12 font-body">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
+          <div>
+            <h2 className="font-display font-bold text-3xl text-gronow-turmeric mb-6">GRONOW<span className="text-green-500">.</span></h2>
+            <p className="text-gray-400 mb-6 leading-relaxed">Abstracting the physical store. The ultimate 15-minute decentralized logistics protocol for the city of Bhubaneswar.</p>
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors">in</a>
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors">tw</a>
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors">ig</a>
             </div>
-            <div className="space-y-4 font-mono text-sm text-gray-600">
-              <div className="flex justify-between"><span>STATUS:</span> <span className="text-gray-900 font-bold">ONLINE</span></div>
-              <div className="flex justify-between"><span>ZONE:</span> <span className="text-gray-900 font-bold">PATIA_01</span></div>
-              <div className="flex justify-between"><span>EARNINGS_TODAY:</span> <span className="text-green-600 font-bold">₹1,450.00</span></div>
-            </div>
-            <Link href="/auth?role=DRIVER" className="mt-12 block text-center font-display font-bold text-sm bg-white border border-gray-200 text-gray-900 px-8 py-4 rounded-xl hover:bg-green-600 hover:text-white hover:border-transparent transition-all shadow-sm">
-              ACCESS DRIVER PORTAL
-            </Link>
           </div>
-          
-          <div className="order-1 md:order-2">
-            <h2 className="font-display font-bold text-5xl tracking-tight mb-8">THE FLEET.</h2>
-            <p className="font-body text-gray-600 text-lg mb-8 leading-relaxed">
-              Our delivery partners operate on a high-density, short-distance model. No 15km trips. No highway driving. Pure local optimization.
-            </p>
-            <ul className="space-y-4 font-mono text-sm text-gray-600">
-              <li className="flex items-center gap-3"><span className="text-green-600 font-bold">+</span> Maximum 3km delivery radius</li>
-              <li className="flex items-center gap-3"><span className="text-green-600 font-bold">+</span> Batch routing for higher earnings</li>
-              <li className="flex items-center gap-3"><span className="text-green-600 font-bold">+</span> Weekly milestone bonuses</li>
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide uppercase text-gray-300">Portals</h4>
+            <ul className="space-y-4 text-gray-400">
+              <li><Link href="/customer" className="hover:text-white transition-colors">Customer Login</Link></li>
+              <li><Link href="/auth?role=STORE_OWNER" className="hover:text-white transition-colors">Store Partner Login</Link></li>
+              <li><Link href="/auth?role=DRIVER" className="hover:text-white transition-colors">Delivery Fleet Login</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide uppercase text-gray-300">Company</h4>
+            <ul className="space-y-4 text-gray-400">
+              <li><a href="#team" className="hover:text-white transition-colors">About the Team</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide uppercase text-gray-300">Legal</h4>
+            <ul className="space-y-4 text-gray-400">
+              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><Link href="/auth?role=ADMIN" className="hover:text-red-400 transition-colors">Admin Dashboard</Link></li>
             </ul>
           </div>
         </div>
-      </motion.section>
-
-      {/* Footer */}
-      <footer className="py-12 px-6 md:px-12 font-mono text-xs text-gray-600 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div>
-          GRO_NOW // BBSR_SMART_CITY // EST. 2026
-        </div>
-        <div className="flex gap-6">
-          <Link href="/auth?role=ADMIN" className="hover:text-gray-900 transition-colors">ADMIN.ACCESS</Link>
-          <span className="text-[#333330]">|</span>
-          <a href="#" className="hover:text-gray-900 transition-colors">TERMS.TXT</a>
-          <a href="#" className="hover:text-gray-900 transition-colors">PRIVACY.TXT</a>
+        <div className="max-w-7xl mx-auto pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+          <p>© 2026 GroNow Technologies. All rights reserved.</p>
+          <p>Built with passion in Bhubaneswar.</p>
         </div>
       </footer>
     </main>

@@ -42,6 +42,10 @@ export default function StorePortal() {
       const ordersData = await apiClient<any[]>("/api/stores/orders", { requireAuth: true }).catch(() => []);
       setActiveOrders(ordersData || []);
 
+      // Also refresh inventory so the UI quantity updates when orders are placed
+      const invData = await apiClient<any[]>("/api/inventory", { requireAuth: true }).catch(() => []);
+      if (invData && invData.length > 0) setInventory(invData);
+
       const pastOrdersData = await apiClient<any[]>("/api/stores/orders/history", { requireAuth: true }).catch(() => []);
       setPastOrders(pastOrdersData || []);
       
@@ -538,16 +542,6 @@ export default function StorePortal() {
                              className="flex-1 bg-blue-600 text-white font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors text-sm"
                            >
                              Hand to Driver
-                           </motion.button>
-                         )}
-      
-                         {order.order_status === 'OUT_FOR_DELIVERY' && (
-                           <motion.button 
-                             whileTap={{ scale: 0.97 }}
-                             onClick={() => updateOrderStatus(order.order_id, 'DELIVERED')}
-                             className="flex-1 bg-purple-600 text-white font-bold py-2 rounded-xl hover:bg-purple-700 transition-colors text-sm"
-                           >
-                             Mark Delivered
                            </motion.button>
                          )}
                        </div>

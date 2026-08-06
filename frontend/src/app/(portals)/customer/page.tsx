@@ -307,6 +307,19 @@ export default function CustomerPortal() {
               Delivery in 15 minutes
             </p>
           </div>
+          
+          {/* Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
+            <input 
+              type="text" 
+              placeholder="Search for 'Kettle', 'Milk', 'Bread'..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-gray-100 text-gray-900 border-none rounded-xl py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          </div>
+
           <div className="flex items-center gap-4">
             <button 
               onClick={() => { localStorage.removeItem("gronow_token"); router.push("/"); }}
@@ -405,8 +418,30 @@ export default function CustomerPortal() {
            ))}
         </div>
 
+        {/* Promotional Carousel */}
+        {searchQuery.trim() === "" && (
+          <div className="px-6 md:px-12 py-8 bg-gray-50 overflow-hidden">
+            <div className="flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4">
+              <motion.div onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })} whileHover={{ scale: 1.02 }} className="min-w-[85vw] md:min-w-[400px] h-48 md:h-64 rounded-2xl overflow-hidden shadow-sm relative snap-center cursor-pointer shrink-0">
+                <img src="/images/promo_banner_mango.jpg" alt="Mango Mania" className="w-full h-full object-cover" />
+              </motion.div>
+              <motion.div onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })} whileHover={{ scale: 1.02 }} className="min-w-[85vw] md:min-w-[400px] h-48 md:h-64 rounded-2xl overflow-hidden shadow-sm relative snap-center cursor-pointer shrink-0">
+                <img src="/images/promo_banner_midnight.jpg" alt="Midnight Cravings" className="w-full h-full object-cover" />
+              </motion.div>
+              <motion.div onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })} whileHover={{ scale: 1.02 }} className="min-w-[85vw] md:min-w-[400px] h-48 md:h-64 rounded-2xl overflow-hidden shadow-sm relative snap-center cursor-pointer shrink-0">
+                <img src="/images/promo_banner_icecream.jpg" alt="Ice Cream Store" className="w-full h-full object-cover" />
+              </motion.div>
+            </div>
+            <div className="flex justify-center gap-2 mt-2">
+              <span className="w-2 h-2 rounded-full bg-gray-800"></span>
+              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+            </div>
+          </div>
+        )}
+
         {/* Products Grid */}
-        <section className="p-6 md:p-12 max-w-7xl mx-auto">
+        <section id="product-grid" className="p-6 md:p-12 max-w-7xl mx-auto">
           {loading ? (
             <div className="text-center py-12 text-gray-400 font-semibold animate-pulse">Loading products...</div>
           ) : (
@@ -684,6 +719,14 @@ export default function CustomerPortal() {
                           <span className="font-bold text-gray-900">₹{activeOrder.total_amount}</span>
                         </div>
                         
+                        {activeOrder.delivery_otp && (
+                          <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-200 text-center shadow-sm">
+                            <p className="text-xs text-green-700 font-bold uppercase tracking-wider mb-1">Delivery PIN</p>
+                            <p className="text-3xl font-black text-green-900 tracking-widest">{activeOrder.delivery_otp}</p>
+                            <p className="text-xs text-green-600 mt-2">Share this with the driver to receive your order</p>
+                          </div>
+                        )}
+
                         {/* Progress Bar */}
                         <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-6">
                           <motion.div 

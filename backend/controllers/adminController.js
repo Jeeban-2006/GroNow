@@ -58,6 +58,23 @@ class AdminController {
         }
     }
 
+    // PUT reject a store
+    async rejectStore(req, res) {
+        try {
+            const { id } = req.params; // store_id
+            
+            // Delete the store (it's pending)
+            await pool.query("DELETE FROM stores WHERE store_id = $1", [id]);
+            
+            // Optionally, we could update store_owner verification_status to 'REJECTED' if we have owner_id, 
+            // but CASCADE or just leaving them as PENDING to try again is fine.
+            
+            res.status(200).json({ success: true, message: "Store rejected successfully" });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
     // GET fleet (delivery partners and tracking)
     async getFleet(req, res) {
         try {

@@ -51,10 +51,11 @@ class OrderController {
             const store_id = firstItemProdRes.rows.length > 0 ? firstItemProdRes.rows[0].store_id : 1; // fallback to 1
 
             const order_number = `ORD-${Date.now()}`;
+            const delivery_otp = Math.floor(100000 + Math.random() * 900000).toString();
             const orderRes = await pool.query(
-                `INSERT INTO orders (order_number, customer_id, store_id, subtotal, total_amount, order_status, delivery_address)
-                 VALUES ($1, $2, $3, $4, $5, 'PLACED', 'Default Delivery Address') RETURNING *`,
-                [order_number, customer_id, store_id, totalAmount, totalAmount]
+                `INSERT INTO orders (order_number, customer_id, store_id, subtotal, total_amount, order_status, delivery_address, delivery_otp)
+                 VALUES ($1, $2, $3, $4, $5, 'PLACED', 'Default Delivery Address', $6) RETURNING *`,
+                [order_number, customer_id, store_id, totalAmount, totalAmount, delivery_otp]
             );
             const order_id = orderRes.rows[0].order_id;
 
@@ -110,7 +111,7 @@ class OrderController {
             const customer_id = customerRes.rows[0].customer_id;
             
             const ordersRes = await pool.query(`
-                SELECT o.order_id, o.order_number, o.order_status, o.total_amount, o.ordered_at, o.delivery_address,
+                SELECT o.order_id, o.order_number, o.order_status, o.total_amount, o.ordered_at, o.delivery_address, o.delivery_otp,
                        t.latitude, t.longitude, t.tracking_status, t.tracked_at, r.waypoints as route_waypoints,
                        (
                            SELECT json_agg(

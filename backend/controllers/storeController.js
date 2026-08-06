@@ -198,9 +198,11 @@ class StoreController {
             }
 
             // Verify store ownership
-            const storeRes = await pool.query("SELECT store_id FROM stores WHERE owner_id = (SELECT owner_id FROM store_owners WHERE user_id = $1)", [user_id]);
+            const storeRes = await pool.query("SELECT store_id, latitude, longitude FROM stores WHERE owner_id = (SELECT owner_id FROM store_owners WHERE user_id = $1)", [user_id]);
             if (storeRes.rows.length === 0) return res.status(403).json({ success: false, message: "Unauthorized" });
             const store_id = storeRes.rows[0].store_id;
+            const store_lat = parseFloat(storeRes.rows[0].latitude) || 20.296059;
+            const store_lng = parseFloat(storeRes.rows[0].longitude) || 85.824539;
 
             // Update status only if order contains items belonging to store
             const updateRes = await pool.query(`
@@ -222,9 +224,36 @@ class StoreController {
             if (status === 'PACKING') {
                 const routeCheck = await pool.query("SELECT route_id FROM routes WHERE order_id = $1", [order_id]);
                 if (routeCheck.rows.length === 0) {
-                    const driverRes = await pool.query("SELECT partner_id FROM delivery_partners WHERE availability_status = 'AVAILABLE' LIMIT 1");
+                    const driverRes = await pool.query("SELECT partner_id, current_latitude, current_longitude FROM delivery_partners WHERE availability_status = 'AVAILABLE'");
+                    
                     if (driverRes.rows.length > 0) {
-                        const partner_id = driverRes.rows[0].partner_id;
+                        // Find the closest driver using haversine distance
+                        let bestDriver = driverRes.rows[0];
+                        let minDriverDist = Infinity;
+                        
+                        for (const driver of driverRes.rows) {
+                            const dLat = parseFloat(driver.current_latitude);
+                            const dLng = parseFloat(driver.current_longitude);
+                            
+                            // If driver has no location, give them a high default distance penalty
+                            if (isNaN(dLat) || isNaN(dLng)) {
+                                if (Infinity < minDriverDist) continue; 
+                                continue;
+                            }
+                            
+                            const dist = haversineDistance(store_lat, store_lng, dLat, dLng);
+                            if (dist < minDriverDist) {
+                                minDriverDist = dist;
+                                bestDriver = driver;
+                            }
+                        }
+                        
+                        // Fallback to first driver if none had valid coordinates
+                        if (minDriverDist === Infinity) {
+                            bestDriver = driverRes.rows[0];
+                        }
+                        
+                        const partner_id = bestDriver.partner_id;
                         
                         // Find all unique stores for this order
                         const oiRes = await pool.query("SELECT DISTINCT p.store_id FROM order_items oi JOIN products p ON oi.product_id = p.product_id WHERE oi.order_id = $1", [order_id]);
@@ -285,6 +314,7 @@ class StoreController {
                             [order_id, partner_id, sLat, sLon, cLat, cLon, JSON.stringify(waypoints)]
                         );
                         await pool.query(`UPDATE orders SET partner_id = $1 WHERE order_id = $2`, [partner_id, order_id]);
+                        await pool.query(`UPDATE delivery_partners SET availability_status = 'BUSY' WHERE partner_id = $1`, [partner_id]);
                     }
                 }
             }

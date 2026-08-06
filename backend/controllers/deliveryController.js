@@ -33,7 +33,7 @@ class DeliveryController {
     async updateStatus(req, res) {
         try {
             const user_id = req.user.user_id;
-            const { order_id, status } = req.body;
+            const { order_id, status, otp } = req.body;
             
             const partnerRes = await pool.query("SELECT partner_id FROM delivery_partners WHERE user_id = $1", [user_id]);
             if (partnerRes.rows.length === 0) return res.status(403).json({ success: false, message: "Unauthorized" });
@@ -51,9 +51,26 @@ class DeliveryController {
                 return res.status(400).json({ success: false, message: "Invalid status" });
             }
 
+            if (status === 'DELIVERED') {
+                if (!otp) {
+                    return res.status(400).json({ success: false, message: "Delivery OTP is required" });
+                }
+                const orderRes = await pool.query("SELECT delivery_otp FROM orders WHERE order_id = $1", [order_id]);
+                if (orderRes.rows.length === 0) {
+                    return res.status(404).json({ success: false, message: "Order not found" });
+                }
+                if (String(orderRes.rows[0].delivery_otp).replace(/\s/g, '') !== String(otp).replace(/\s/g, '')) {
+                    return res.status(400).json({ success: false, message: "Invalid OTP. Cannot complete delivery." });
+                }
+            }
+
             await pool.query(`
                 UPDATE routes SET route_status = $1 WHERE order_id = $2 AND partner_id = $3
             `, [status, order_id, partner_id]);
+            
+            if (status === 'DELIVERED') {
+                await pool.query(`UPDATE delivery_partners SET availability_status = 'AVAILABLE', total_deliveries = total_deliveries + 1 WHERE partner_id = $1`, [partner_id]);
+            }
 
             if (orderStatusMap[status]) {
                 await pool.query(`
@@ -145,13 +162,17 @@ class DeliveryController {
     async updateAvailability(req, res) {
         try {
             const user_id = req.user.user_id;
-            const { availability_status } = req.body;
+            const { availability_status, latitude, longitude } = req.body;
 
             const partnerRes = await pool.query("SELECT partner_id FROM delivery_partners WHERE user_id = $1", [user_id]);
             if (partnerRes.rows.length === 0) return res.status(403).json({ success: false, message: "Unauthorized" });
             const partner_id = partnerRes.rows[0].partner_id;
 
-            await pool.query(`UPDATE delivery_partners SET availability_status = $1 WHERE partner_id = $2`, [availability_status, partner_id]);
+            if (latitude && longitude) {
+                await pool.query(`UPDATE delivery_partners SET availability_status = $1, current_latitude = $2, current_longitude = $3 WHERE partner_id = $4`, [availability_status, latitude, longitude, partner_id]);
+            } else {
+                await pool.query(`UPDATE delivery_partners SET availability_status = $1 WHERE partner_id = $2`, [availability_status, partner_id]);
+            }
 
             res.status(200).json({ success: true, message: "Availability updated" });
         } catch (error) {

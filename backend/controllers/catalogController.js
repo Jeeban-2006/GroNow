@@ -6,7 +6,7 @@ class CatalogController {
     async getCategories(req, res) {
         try {
             const result = await pool.query(
-                "SELECT category_id AS id, category_name AS name FROM categories ORDER BY category_name"
+                "SELECT category_id AS id, category_name AS name FROM categories WHERE is_active = TRUE ORDER BY category_name"
             );
             const formatted = result.rows.map(row => ({
                 id: row.id.toString(),
