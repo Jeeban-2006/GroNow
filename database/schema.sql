@@ -511,6 +511,8 @@ CREATE TABLE orders (
 
     delivered_at TIMESTAMP,
 
+    delivery_otp VARCHAR(6),
+
     CONSTRAINT fk_order_customer
         FOREIGN KEY(customer_id)
         REFERENCES customers(customer_id)
