@@ -43,6 +43,30 @@ export default function DriverPortal() {
     }
   }, [isOnline]);
 
+  // Handle tab close/refresh to mark driver offline
+  useEffect(() => {
+    const handleUnload = () => {
+      if (isOnline) {
+        const token = localStorage.getItem("gronow_token");
+        if (token) {
+          // Use fetch with keepalive to ensure the request completes as the tab closes
+          fetch(process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/delivery/availability` : "/api/delivery/availability", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ availability_status: "OFFLINE" }),
+            keepalive: true
+          }).catch(console.error);
+        }
+      }
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [isOnline]);
+
   useEffect(() => {
     apiClient<any>("/api/delivery/stats", { requireAuth: true })
       .then(res => {
