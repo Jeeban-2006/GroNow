@@ -146,7 +146,13 @@ class AdminController {
     async toggleNodeStatus(req, res) {
         try {
             const { id } = req.params; // this is user_id
-            await pool.query("UPDATE users SET is_active = NOT is_active WHERE user_id = $1", [id]);
+            const result = await pool.query("UPDATE users SET is_active = NOT is_active WHERE user_id = $1 RETURNING is_active", [id]);
+            
+            if (result.rows.length > 0 && !result.rows[0].is_active) {
+                // If user was just suspended, force them offline so they disappear from active fleets and don't get assigned new orders
+                await pool.query("UPDATE delivery_partners SET availability_status = 'OFFLINE' WHERE user_id = $1", [id]);
+            }
+
             res.status(200).json({ success: true, message: "Node status toggled" });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
