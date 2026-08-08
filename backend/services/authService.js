@@ -119,6 +119,10 @@ async login(email, password) {
 
     const user = result.rows[0];
 
+    if (user.is_active === false) {
+        throw new Error("Your account has been suspended by the administrator.");
+    }
+
     const isMatch = await comparePassword(password, user.password);
 
     if (!isMatch) {
